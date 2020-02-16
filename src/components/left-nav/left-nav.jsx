@@ -7,7 +7,10 @@ import menuList from '../../config/menuConfig'
 import {withRouter} from 'react-router-dom'
 import {Menu, Icon} from 'antd'
 
-import userUtil from '../../utils/memoryUtils'
+
+import {connect} from 'react-redux'
+import {set_head_title} from '../../redux/actions'
+
 
 const {SubMenu} = Menu
 
@@ -16,16 +19,17 @@ class LeftNav extends Component {
     componentWillMount() {
         //在第一之render()之前執行一次
         //為第一次render準備數據(必須是同步的)
-        this.user = userUtil.user
+
         this.menuNodes = this.createMenu(menuList)
     }
 
     hasAuth = (item) => {
         let right = false
-        if (this.user.username === 'admin'||item.isPublic) {
+        const user=this.props.user
+        if (user.username === 'admin' || item.isPublic) {
             return true
         } else {
-            right = this.user.role.menus.find(menu => {
+            right = user.role.menus.find(menu => {
                 if (item.key === menu) {
                     return true
                 } else if (item.children) {
@@ -47,8 +51,11 @@ class LeftNav extends Component {
         list = list.map(item => {
             if (this.hasAuth(item)) {
                 if (!item.children) {
+                    if (item.key === path ) {
+                        this.props.set_head_title(item.title)
+                    }
                     return (<Menu.Item key={item.key}>
-                            <Link to={item.key}>
+                            <Link to={item.key} onClick={() => this.props.set_head_title(item.title)}>
                                 <Icon type={item.icon}/>
                                 <span>{item.title}</span>
                             </Link>
@@ -114,4 +121,4 @@ class LeftNav extends Component {
 
 }
 
-export default withRouter(LeftNav)
+export default connect(state => ({user:state.user}), {set_head_title})(withRouter(LeftNav))

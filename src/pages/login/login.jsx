@@ -2,24 +2,21 @@ import React, {Component} from 'react'
 import './login.less'
 import logo from '../../assets/images/logo.png'
 import {Form, Icon, Input, Button, message} from 'antd';
-import {reqLogin} from '../../api'
-import memoryUtils from '../../utils/memoryUtils'
-import userUtils from '../../utils/storageUtils'
 import {Redirect} from 'react-router-dom'
+import {connect} from 'react-redux'
+import {login} from '../../redux/actions'
 
 class Login extends Component {
     handleSubmit = e => {
-        e.preventDefault();//阻止表單提交
+        e.preventDefault()//阻止表單提交
         this.props.form.validateFields(async (err, values) => {
             if (!err) {
-                let result = await reqLogin(values.username, values.password)
-                if (result.status === 0) {
+                await this.props.login(values.username, values.password)
+                if (!this.props.user.errorMsg) {
                     message.success('登錄成功')
-                    memoryUtils.user = result.data
-                    userUtils.saveUser(result.data)
-                    this.props.history.replace('/')
+                    this.props.history.replace('/home')
                 } else {
-                    message.error(result.msg)
+                    message.error(this.props.user.errorMsg)
                 }
             }
         })
@@ -40,7 +37,8 @@ class Login extends Component {
     }
 
     render() {
-        if (memoryUtils.user && memoryUtils.user._id) {
+        const user=this.props.user
+        if (user && user._id) {
             return <Redirect to='/'/>
         }
         const {getFieldDecorator} = this.props.form;
@@ -93,6 +91,6 @@ class Login extends Component {
 
 }
 
-export default Form.create({name: 'normal_login'})(Login);
+export default connect(state => ({user: state.user}), {login})(Form.create({name: 'normal_login'})(Login))
 
 

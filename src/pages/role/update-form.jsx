@@ -52,7 +52,7 @@ export default class UpdateForm extends PureComponent {
     }
 
     onExpand = expandedKeys => {
-        console.log('onExpand', expandedKeys);
+        // console.log('onExpand', expandedKeys);
         // if not set autoExpandParent to false, if children expanded, parent can not collapse.
         // or, you can remove all expanded children keys.
         // this.setState({
@@ -62,12 +62,12 @@ export default class UpdateForm extends PureComponent {
     }
 
     onCheck = checkedKeys => {
-        console.log('onCheck', checkedKeys);
+        // console.log('onCheck', checkedKeys);
         this.setState({checkedKeys});
     }
 
     onSelect = (selectedKeys, info) => {
-        console.log('onSelect', selectedKeys, info);
+        // console.log('onSelect', selectedKeys, info);
         // this.setState({selectedKeys});
     }
 
@@ -93,7 +93,7 @@ export default class UpdateForm extends PureComponent {
         }
         const {role} = this.props
 
-        console.log('uu')
+
         return (
             <div>
                 <Item label='角色名稱' {...formItemLayout}>

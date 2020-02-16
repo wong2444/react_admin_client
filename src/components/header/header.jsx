@@ -3,11 +3,13 @@ import './header.less'
 import {reqWeather} from '../../api'
 import formateDate from '../../utils/dateUtils'
 import {withRouter} from 'react-router-dom'
-import menuList from '../../config/menuConfig'
 
-import storageUtils from '../../utils/storageUtils'
-import memoryUtils from '../../utils/memoryUtils'
+
 import LinkButton from '../link-button/link-button'
+
+import {connect} from 'react-redux'
+import {logout} from '../../redux/actions'
+
 
 import {Modal} from 'antd';
 
@@ -24,9 +26,9 @@ class Header extends Component {
         confirm({
             title: '要登出嗎?',
             onOk: () => {
-                storageUtils.removeUser()
-                memoryUtils.user = {}
-                this.props.history.replace('/login')
+                this.props.logout()
+                //admin跳轉頁面
+                // this.props.history.replace('/login')
 
             },
             onCancel() {
@@ -47,21 +49,6 @@ class Header extends Component {
 
     }
 
-    getTitle = () => {
-        const path = this.props.location.pathname
-        let title = ''
-        menuList.forEach(item => {
-            if (item.key === path) {
-                title = item.title
-            } else if (item.children) {
-                let citem = item.children.find(citem => path.includes(citem.key))
-                if (citem) {
-                    title = citem.title
-                }
-            }
-        })
-        return title
-    }
 
     componentDidMount() {
         this.getTime()
@@ -77,10 +64,11 @@ class Header extends Component {
     }
 
     render() {
-        const title = this.getTitle()
+        const title = this.props.headTitle
+        const user = this.props.user
         return (<div className='header'>
             <div className='header-top'>
-                <span>歡迎,{memoryUtils.user.username}</span>
+                <span>歡迎,{user.username}</span>
                 <LinkButton onClick={this.logout}>退出</LinkButton>
             </div>
             <div className='header-bottom'>
@@ -97,4 +85,6 @@ class Header extends Component {
 
 }
 
-export default withRouter(Header)
+export default connect(state => ({
+    headTitle: state.headTitle, user: state.user
+}), {logout})(withRouter(Header))

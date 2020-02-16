@@ -3,13 +3,14 @@ import {Card, Button, Table, Modal, message} from 'antd'
 import {PAGE_SIZE} from "../../utils/constants";
 import {reqRoles, reqAddRole, reqUpdateRole} from '../../api'
 import AddForm from "./add-form";
-import UpdateForm from "./update-form";
-import memoryUtils from '../../utils/memoryUtils'
+import UpdateForm from "./update-form"
 import dateUtils from '../../utils/dateUtils'
 
-import storageUtils from "../../utils/storageUtils";
+import {connect} from 'react-redux'
+import {logout} from '../../redux/actions'
 
-export default class Role extends Component {
+
+class Role extends Component {
 
 
     constructor(props) {
@@ -85,17 +86,16 @@ export default class Role extends Component {
     updateRole = async () => {
         const role = this.state.role
         let menus = this.auth.getMenus()
+        let user = this.props.user
 
         role.menus = menus
-        role.auth_name = memoryUtils.user.username
+        role.auth_name = user.username
         role.auth_time = Date.now()
         const result = await reqUpdateRole(role)
         if (result.status === 0) {
-            if (role._id === memoryUtils.user.role_id) {
-                memoryUtils.user = {}
-                storageUtils.removeUser()
-                this.props.history.replace('/login')
-                message.success('所屬角色權限更新成功,請重新登錄')
+            if (role._id === user.role_id) {
+                message.success('所屬角色權限更新成功,請重新登入')
+                this.props.logout()
             } else {
                 this.setState({showStatus: 0, roles: [...this.state.roles]})
                 message.success('角色權限更新成功')
@@ -179,3 +179,5 @@ export default class Role extends Component {
     }
 
 }
+
+export default connect(state => ({user: state.user}), {logout})(Role)
